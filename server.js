@@ -15,19 +15,15 @@ app.get('/', function (req, res) {
   res.send("Hello!");
 });
 
-app.post('/message', function (req, res, next) {
-  // strip all punctuation and special characters and convert to lower case
-  stripped = req.body.message.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").toLowerCase();
-  messageArray = stripped.split(' ');
-  next();
-});
-
 app.use(function (req, res, next) {
-  if(!messageArray) {
+  console.log(req.body);
+  if(!req.body || Object.keys(req.body).length === 0) {
     console.log("No message detected.");
-    res.send("No message detected.");
   }
   else {
+    // strip all punctuation and special characters and convert to lower case
+    stripped = req.body.message.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").toLowerCase();
+    messageArray = stripped.split(' ');
     for(var i = 0; i < messageArray.length; i++) {
       switch(messageArray[i]) {
         case "selfie":
@@ -60,9 +56,20 @@ app.use(function (req, res, next) {
       }
     }
   console.log(messageArray);
-  res.send(messageArray);
+  }
+  next();
+});
+
+app.post('/message', function (req, res, next) {
+  if(messageArray) {
+    res.send(messageArray);
+  }
+  else {
+    res.send("No message detected.");
   }
 });
+
+
 
 var server = app.listen(PORT, function () {
   console.log("listening on port " + server.address().port);
